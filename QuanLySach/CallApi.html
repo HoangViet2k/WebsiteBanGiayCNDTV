@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>Quản lý sách</title>
+
+</head>
+<body>
+    <div>
+        <h2>Danh sách</h2>
+        <ul id="sachs" />
+    </div>
+    <div>
+        <h2>Tìm kiếm sách</h2>
+        <input type="text" id="prodId" size="5" />
+        <input type="button" value="Search" onclick="find();" />
+        <p id="sach" />
+    </div> 
+    <div id="list_search"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+            crossorigin="anonymous"></script>
+    <script>
+        var uri = 'api/sach';
+        $(document).ready(function () {
+            $.getJSON(uri)
+                .done(function (data) {
+                    $.each(data, function (key, item) {
+                        $('<li>', { text: formatItem(item) }).appendTo($('#sachs'));
+                    });
+                });
+        });
+        function formatItem(item) {
+            return item.Title + ': $' + item.Price;
+        }
+        function find() {
+            var id = $('#prodId').val();
+            //$.getJSON(uri + '/' + id)
+            //    .done(function (data) {
+            //        $('#sach').text(formatItem(data));
+            //    })
+            //    .fail(function (jqXHR, textStatus, err) {
+            //        $('#sach').text('Error: ' + err);
+            //    });
+
+            $.ajax({
+                url: uri,
+                method: "GET",
+                data: { searchKey: id }
+            }).done((data) => {
+                console.log(data)
+                if (data.length <= 0) {
+                    alert("Không tìm thấy sách phù hợp")
+                } else {
+                    $("#list_search div").remove()
+                    data.forEach(item => {
+                        $("#list_search").append(`
+                            <div >${formatItem(item)} </div>
+                        `)
+                    })
+                    
+
+                }
+            }).fail(err => {
+                alert(err.responseJSON.Message)
+            })
+        }
+       
+
+    </script>
+
+</body>
+   
+</html>
